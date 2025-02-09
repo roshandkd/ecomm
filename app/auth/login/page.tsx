@@ -1,16 +1,13 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -24,10 +21,8 @@ const LoginPage: React.FC = () => {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, [router]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -38,9 +33,7 @@ const LoginPage: React.FC = () => {
       setError("Login failed");
     }
   };
-
   if (loading) return <div>Loading...</div>;
-
   return (
     <div className="min-h-screen flex items-center justify-center ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
@@ -132,5 +125,4 @@ const LoginPage: React.FC = () => {
     </div>
   );
 };
-
 export default LoginPage;

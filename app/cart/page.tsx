@@ -1,14 +1,11 @@
 "use client";
 // pages/cart.tsx
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
 const CartPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -19,13 +16,9 @@ const CartPage = () => {
         router.push("/auth/login"); // Redirect to login if not authenticated
       }
     };
-
     checkAuth();
   }, [router]);
-
   if (loading) return <div>Loading...</div>;
-
   return <div>Your Cart</div>;
 };
-
 export default CartPage;
