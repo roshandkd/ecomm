@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
       try {
         await axios.get("/api/verify"); // A protected API route to check JWT token
         setLoading(false);
-        router.push("/dashboard"); // Redirect to login if not authenticated
+        router.push("/"); // Redirect to login if not authenticated
       } catch (error) {
         console.log(error);
         router.push("/auth/login"); // Redirect to login if not authenticated
@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     try {
       await axios.post("/api/login", { email, password });
-      router.push("/cart"); // Redirect to cart page on successful login
+      router.push("/"); // Redirect to cart page on successful login
     } catch (error) {
       console.log(error);
       setError("Login failed");
