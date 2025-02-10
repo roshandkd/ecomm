@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import prisma from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     const cookies = req.cookies;
@@ -10,8 +11,16 @@ export async function GET(req: NextRequest) {
         { status: 401 }
       );
     }
-    const decoded = jwt.verify(token.value, "123bhhbk3b3");
-    return NextResponse.json({ message: "Authenticated", decoded });
+    const JWT_SECRET = process.env.JWT_SECRET || "";
+
+    const decoded = jwt.verify(token.value, JWT_SECRET) as JwtPayload;
+    const email = decoded.email || "";
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    return NextResponse.json({ message: "Authenticated", decoded, user });
   } catch (error) {
     console.log("Error in token verification:", error);
     return NextResponse.json(

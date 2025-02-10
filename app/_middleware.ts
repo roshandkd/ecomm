@@ -17,16 +17,16 @@ import { getAuthStatus } from "./auth/auth";
 //new
 export async function middleware(request: Request) {
   const { pathname } = new URL(request.url);
-  const isAuthenticated = await getAuthStatus();
+  const { isAuthenticated } = await getAuthStatus();
 
   if (pathname.startsWith("/cart") && !isAuthenticated) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-    // Protect logout action
-    if (pathname === '/logout' && !isAuthenticated) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
+  // Protect logout action
+  if (pathname === "/logout" && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
 
   return NextResponse.next();
 }

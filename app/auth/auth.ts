@@ -1,23 +1,28 @@
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import prisma from "@/lib/prisma";
 
-const SECRET_KEY = "123bhhbk3b3";
-
-export const generateToken = (email: string) => {
-  return jwt.sign({ email }, SECRET_KEY, { expiresIn: "1h" });
-};
-
-export const verifyToken = (token: string) => {
+export const verifyToken = async (token = "") => {
   try {
-    return jwt.verify(token, SECRET_KEY);
+    const JWT_SECRET = process.env.JWT_SECRET || "";
+
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const email = decoded.email || "";
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    return { user, isAuthenticated: true };
   } catch (error) {
-    console.log("error", error);
-    return null;
+    console.log("error>>", error);
+    return { user: null, isAuthenticated: false };
   }
 };
 
 export const getAuthStatus = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  return token ? verifyToken(token) : null;
+  return token ? verifyToken(token) : { user: null, isAuthenticated: false };
 };

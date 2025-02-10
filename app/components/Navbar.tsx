@@ -1,25 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { logout } from "../auth/actions";
+import { useAuth } from "@/auth-context";
 
 const Navbar: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const router = useRouter();
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await axios.get("/api/verify");
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    checkAuth();
-  }, [router]);
+  const { user, isAuthenticated, logout } = useAuth();
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -58,6 +44,7 @@ const Navbar: React.FC = () => {
           <Link href="/">Home</Link>
           <Link href="/shop">Shop</Link>
           <Link href="/about">About Us</Link>
+          {user && user.role === "admin" && <Link href="/admin">Admin</Link>}
 
           {/* Authenticated Items */}
           {isAuthenticated ? (

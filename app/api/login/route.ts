@@ -21,17 +21,18 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    const token = jwt.sign({ email: user.email }, "123bhhbk3b3", {
+    const JWT_SECRET = process.env.JWT_SECRET || "";
+    const token = jwt.sign({ email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
     // Set the token as HttpOnly cookie
     const response = NextResponse.json({
       message: "Login Successful",
-      user: { email: user.email },
+      user,
     });
     response.cookies.set("token", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production", // Use `true` in production for HTTPS
+      secure: process.env.NODE_ENV === "production", // Use `true` in production for HTTPS
       maxAge: 3600, // 1 hour
       path: "/",
     });

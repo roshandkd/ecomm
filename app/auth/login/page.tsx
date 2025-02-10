@@ -1,39 +1,39 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "@/auth-context";
+
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null); // Use string | null for error state
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { setUser, setIsAuthenticated, isAuthenticated } = useAuth();
+
+  // If the user is authenticated, redirect to the home page immediately
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await axios.get("/api/verify"); // A protected API route to check JWT token
-        setLoading(false);
-        router.push("/"); // Redirect to login if not authenticated
-      } catch (error) {
-        console.log(error);
-        router.push("/auth/login"); // Redirect to login if not authenticated
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, [router]);
+    if (isAuthenticated) {
+      router.push("/"); // Redirect to homepage if user is authenticated
+    }
+  }, [isAuthenticated, router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Reset error state before making the API call
     try {
-      await axios.post("/api/login", { email, password });
-      router.push("/"); // Redirect to cart page on successful login
+      const response = await axios.post("/api/login", { email, password });
+      const { user } = response.data;
+      setUser(user);
+      setIsAuthenticated(true);
+      router.push("/"); // Redirect to home or dashboard after successful login
     } catch (error) {
-      console.log(error);
-      setError("Login failed");
+      console.error(error);
+      setError("Login failed. Please check your credentials.");
     }
   };
-  if (loading) return <div>Loading...</div>;
+
+  if (isAuthenticated) return null;
   return (
     <div className="min-h-screen flex items-center justify-center ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
@@ -91,7 +91,7 @@ const LoginPage: React.FC = () => {
           >
             Login
           </button>
-          {error && <p>{error}</p>}
+          {error && <p className="text-red-500 mt-2">{error}</p>}
           <div className="text-center mt-6">
             <p className="text-gray-600">Or Login with</p>
             <div className="flex justify-center mt-4">
