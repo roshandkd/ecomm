@@ -6,6 +6,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import axios from "axios";
 import { User } from "./types";
@@ -38,12 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const router = useRouter();
 
-  const logout = async() => {
+  const logout = useCallback(async () => {
     await axios.post("/api/logout");
     setUser(null);
     setIsAuthenticated(false);
     router.push("/");
-  };
+  }, [router]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -55,10 +56,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.log(error);
         setIsAuthenticated(false);
+        setUser(null);
+        logout();
       }
     };
     checkAuth();
-  }, []);
+  }, [logout]);
 
   return (
     <AuthContext.Provider
